@@ -10,7 +10,7 @@ using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
 
-class HelloRequestHandler: public HTTPRequestHandler
+class DatabaseCreateRequestHandler: public HTTPRequestHandler
 {
     void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
     {
@@ -20,19 +20,24 @@ class HelloRequestHandler: public HTTPRequestHandler
         response.setChunkedTransferEncoding(true);
         response.setContentType("text/html");
 
-        response.send()
-                << "<html>"
-                << "<head><title>Hello</title></head>"
-                << "<body><h1>Hi from Alex Braun</h1></body>"
-                << "</html>";
+        auto databaseName = request.find("databaseName");
+        if (databaseName == request.end()) {
+            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
+        } else {
+            response.setStatus(HTTPResponse::HTTP_OK);
+        }
+        response.send();
     }
 };
 
 class RequestHandlerFactory: public HTTPRequestHandlerFactory
 {
-    HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& req) override
+    HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override
     {
-        const auto& uri = req.getURI();
+        const auto& uri = request.getURI();
+        if (uri == "/database/create") {
+            return new DatabaseCreateRequestHandler();
+        }
     }
 };
 
