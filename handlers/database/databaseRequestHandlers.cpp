@@ -7,7 +7,7 @@ using namespace Poco::Util;
 void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
                                                  HTTPServerResponse& response) {
         Application& app = Application::instance();
-        app.logger().information("Request \"Create database\"  from %s",
+        app.logger().information("Request \"Create database\" from %s",
                                  request.clientAddress().toString());
 
         response.setChunkedTransferEncoding(true);
@@ -15,7 +15,7 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
 
         auto databaseName = request.find("databaseName");
         if (databaseName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
+        response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
         } else {
             response.setStatus(HTTPResponse::HTTP_OK);
         }
@@ -23,9 +23,9 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
 }
 
 void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
-                                                 HTTPServerResponse& response) {
+                                               HTTPServerResponse& response) {
     Application& app = Application::instance();
-    app.logger().information("Request \"Show database\"  from %s",
+    app.logger().information("Request \"Show database\" from %s",
                              request.clientAddress().toString());
 
     response.setChunkedTransferEncoding(true);
@@ -41,9 +41,9 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
 }
 
 void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
-                                               HTTPServerResponse& response) {
+                                                 HTTPServerResponse& response) {
     Application& app = Application::instance();
-    app.logger().information("Request \"Rename database\"  from %s",
+    app.logger().information("Request \"Rename database\" from %s",
                              request.clientAddress().toString());
 
     response.setChunkedTransferEncoding(true);
@@ -61,7 +61,7 @@ void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
 void DatabaseDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
                                                  HTTPServerResponse& response) {
     Application& app = Application::instance();
-    app.logger().information("Request \"Delete database\"  from %s",
+    app.logger().information("Request \"Delete database\" from %s",
                              request.clientAddress().toString());
 
     response.setChunkedTransferEncoding(true);

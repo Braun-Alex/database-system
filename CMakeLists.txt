@@ -2,8 +2,16 @@ cmake_minimum_required(VERSION 3.26)
 project(server)
 
 set(CMAKE_CXX_STANDARD 23)
-set(HEADERS databaseRequestHandlers.h)
-set(SOURCES databaseRequestHandlers.cpp main.cpp)
+set(HEADERS handlers/database/databaseRequestHandlers.h
+        handlers/table/tableRequestHandlers.h
+        handlers/row/rowRequestHandlers.h
+        handlers/attribute/attributeRequestHandlers.h
+)
+set(SOURCES handlers/database/databaseRequestHandlers.cpp
+        handlers/table/tableRequestHandlers.cpp
+        handlers/row/rowRequestHandlers.cpp
+        handlers/attribute/attributeRequestHandlers.cpp
+        main.cpp)
 
 include(FetchContent)
 FetchContent_Declare(

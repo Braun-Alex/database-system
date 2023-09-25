@@ -1,4 +1,7 @@
-#include "databaseRequestHandlers.h"
+#include "handlers/database/databaseRequestHandlers.h"
+#include "handlers/table/tableRequestHandlers.h"
+#include "handlers/row/rowRequestHandlers.h"
+#include "handlers/attribute/attributeRequestHandlers.h"
 
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
@@ -10,226 +13,6 @@
 using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
-
-class TableCreateRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Create table\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class TableShowRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Show table\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class TableRenameRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Rename table\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class TableDeleteRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Delete table\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class RowAddRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Add row\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class RowEditRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Edit row\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class RowDeleteRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Delete row\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class AttributeAddRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Add attribute\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class AttributeEditRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Edit attribute\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class AttributeDeleteRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Delete attribute\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-                tableName = request.find("tableName");
-        if (databaseName == request.end() && tableName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
 
 class RequestHandlerFactory: public HTTPRequestHandlerFactory
 {
@@ -244,25 +27,25 @@ class RequestHandlerFactory: public HTTPRequestHandlerFactory
             return new DatabaseRenameRequestHandler();
         } else if (uri == "/database/delete") {
             return new DatabaseDeleteRequestHandler();
-        } else if (uri == "table/create") {
+        } else if (uri == "/table/create") {
             return new TableCreateRequestHandler();
-        } else if (uri == "table/show") {
+        } else if (uri == "/table/show") {
             return new TableShowRequestHandler();
-        } else if (uri == "table/rename") {
+        } else if (uri == "/table/rename") {
             return new TableRenameRequestHandler();
-        } else if (uri == "table/delete") {
+        } else if (uri == "/table/delete") {
             return new TableDeleteRequestHandler();
-        } else if (uri == "row/add") {
+        } else if (uri == "/row/add") {
             return new RowAddRequestHandler();
-        } else if (uri == "row/edit") {
+        } else if (uri == "/row/edit") {
             return new RowEditRequestHandler();
-        } else if (uri == "row/delete") {
+        } else if (uri == "/row/delete") {
             return new RowDeleteRequestHandler();
-        } else if (uri == "attribute/add") {
+        } else if (uri == "/attribute/add") {
             return new AttributeAddRequestHandler();
-        } else if (uri == "attribute/edit") {
+        } else if (uri == "/attribute/edit") {
             return new AttributeEditRequestHandler();
-        } else if (uri == "attribute/delete") {
+        } else if (uri == "/attribute/delete") {
             return new AttributeDeleteRequestHandler();
         }
     }
