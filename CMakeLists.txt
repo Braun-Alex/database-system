@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.26)
 project(server)
 
 set(CMAKE_CXX_STANDARD 23)
-set(PROJECT_SOURCES main.cpp)
+set(HEADERS databaseRequestHandlers.h)
+set(SOURCES databaseRequestHandlers.cpp main.cpp)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -11,5 +12,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Poco)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC Foundation Net NetSSL JSON)

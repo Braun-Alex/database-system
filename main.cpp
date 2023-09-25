@@ -1,99 +1,15 @@
+#include "databaseRequestHandlers.h"
+
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Util/ServerApplication.h"
-#include <iostream>
 
 using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::Util;
-
-class DatabaseCreateRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Create database\"  from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName");
-        if (databaseName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class DatabaseShowRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Show database\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName");
-        if (databaseName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class DatabaseRenameRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Rename database\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName"),
-        databaseNewName = request.find("databaseNewName");
-        if (databaseName == request.end() && databaseNewName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
-
-class DatabaseDeleteRequestHandler: public HTTPRequestHandler
-{
-    void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override
-    {
-        Application& app = Application::instance();
-        app.logger().information("Request \"Delete database\" from %s",
-                                 request.clientAddress().toString());
-
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
-
-        auto databaseName = request.find("databaseName");
-        if (databaseName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
-    }
-};
 
 class TableCreateRequestHandler: public HTTPRequestHandler
 {
