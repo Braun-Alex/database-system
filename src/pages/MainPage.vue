@@ -1,9 +1,12 @@
 <template>
   <div class="q-pa-md">
-    <template>
       <div class="q-pa-md q-gutter-md">
-        <q-btn :loading="!retrievingFinished" square color="secondary" glossy @click="retrieveDatabases()" no-caps>
-          Оновити список голосувань
+        <q-btn :loading="!retrievingFinished" square color="blue" glossy @click="retrieveDatabases()" no-caps>
+          Переглянути наявні бази даних
+        </q-btn>
+
+        <q-btn :loading="!retrievingFinished" square color="green" glossy @click="createDatabase()" no-caps>
+          Створити нову базу даних
         </q-btn>
 
         <transition
@@ -18,11 +21,17 @@
                 <q-icon name="account_tree" color="black" />
               </q-item-section>
 
+              <q-item-section top class="col-2 gt-sm">
+                <q-item-label class="q-mt-sm">
+                  {{ database }}
+                  <q-tooltip delay="1500">Дата створення</q-tooltip>
+                </q-item-label>
+              </q-item-section>
+
               <q-item-section top side>
                 <div class="text-grey-8 q-gutter-xs">
-                  <q-btn round color="teal" :icon="poll.finished ? 'verified' : 'ballot'"
-                         @click="poll.finished ? getResults(poll) : vote(poll)">
-                    <q-tooltip>{{ 'Перейти' }}</q-tooltip>
+                  <q-btn round color="teal" icon="ballot">
+                    <q-tooltip>Переглянути базу даних</q-tooltip>
                   </q-btn>
                 </div>
               </q-item-section>
@@ -37,11 +46,28 @@
           label-class="text-teal"
         />
       </div>
-    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, Ref } from 'vue'
-const k
+const allDatabases: Ref<string[]> = ref<string[]>([])
+import axios from 'axios'
+import { date, useQuasar } from 'quasar'
+const $q = useQuasar()
+const retrievingFinished: Ref<boolean> = ref<boolean>(true)
+
+function retrieveDatabases () {
+  retrievingFinished.value = false
+  axios.get('http://localhost:8080/show').then((response: any) => {
+    allDatabases.value = response.data.allDatabases
+  }).catch((error) => {
+    $q.notify({
+      type: 'negative',
+      message: 'API сервер не працює. Причина: ' + error.message
+    })
+  }).finally(() => {
+    retrievingFinished.value = true
+  })
+}
 </script>
