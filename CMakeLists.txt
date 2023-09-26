@@ -21,4 +21,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Poco)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC Foundation Net NetSSL JSON)
+target_link_libraries(${PROJECT_NAME} PUBLIC Foundation Net NetSSL Util XML JSON DataPostgreSQL)

@@ -19,7 +19,9 @@ class RequestHandlerFactory: public HTTPRequestHandlerFactory
     HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override
     {
         const auto& uri = request.getURI();
-        if (uri == "/database/create") {
+        if (uri == "/show") {
+            return new DatabasesShowRequestHandler();
+        } else if (uri == "/database/create") {
             return new DatabaseCreateRequestHandler();
         } else if (uri == "/database/show") {
             return new DatabaseShowRequestHandler();
