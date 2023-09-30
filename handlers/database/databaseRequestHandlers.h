@@ -9,6 +9,7 @@
 #include "Poco/Data/PostgreSQL/Connector.h"
 #include "Poco/Data/Session.h"
 #include "Poco/JSON/Object.h"
+#include "Poco/Net/HTMLForm.h"
 
 using namespace Poco;
 using namespace Poco::Net;
