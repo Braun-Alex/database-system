@@ -28,10 +28,14 @@ void DatabasesShowRequestHandler::handleRequest(HTTPServerRequest& request,
     response.set("access-control-allow-origin", "*");
     response.setStatus(HTTPResponse::HTTP_OK);
 
-    Poco::JSON::Object databases;
-    databases.set("allDatabases", allDatabases);
+    Poco::JSON::Object result;
+    result.set("HTTP method", "GET");
+    result.set("API method", "Show databases");
+    result.set("Success", true);
+    result.set("Databases", allDatabases);
+
     std::ostream& answer = response.send();
-    databases.stringify(answer);
+    result.stringify(answer);
 }
 
 void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
@@ -40,17 +44,37 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
         app.logger().information("Request \"Create database\" from %s",
                                  request.clientAddress().toString());
 
+    PostgreSQL::Connector::registerConnector();
+    Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
+                                "host=localhost port=5432 user=alex_braun "
+                                "password=AlAzazaAl123 dbname=postgres");
+
+    auto databaseName = request.find("databaseName");
+
+    bool success = false;
+
+    if (databaseName == request.end()) {
+        response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
+    } else {
+        success = true;
+        response.setStatus(HTTPResponse::HTTP_OK);
+        session << "CREATE DATABASE " + databaseName->second;
+
         response.setChunkedTransferEncoding(true);
-        response.setContentType("text/html");
+        response.setContentType("application/json");
+        response.setKeepAlive(true);
+        response.set("access-control-allow-origin", "*");
+        response.setStatus(HTTPResponse::HTTP_OK);
+    }
 
-        auto databaseName = request.find("databaseName");
+    Poco::JSON::Object result;
+    result.set("HTTP method", "POST");
+    result.set("API method", "Create database");
+    result.set("Success", success);
+    std::ostream& answer = response.send();
+    result.stringify(answer);
 
-        if (databaseName == request.end()) {
-            response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-        } else {
-            response.setStatus(HTTPResponse::HTTP_OK);
-        }
-        response.send();
+    response.send();
 }
 
 void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
@@ -60,9 +84,13 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
                              request.clientAddress().toString());
 
     auto databaseName = request.find("databaseName");
+
+    bool success = false;
+
     if (databaseName == request.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
+        success = true;
         response.setStatus(HTTPResponse::HTTP_OK);
         PostgreSQL::Connector::registerConnector();
         Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
@@ -81,10 +109,14 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
         response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
 
-        Poco::JSON::Object tables;
-        tables.set("allDatabases", allTables);
+        Poco::JSON::Object result;
+        result.set("HTTP method", "GET");
+        result.set("API method", "Show database");
+        result.set("Success", success);
+        result.set("Database", databaseName->second);
+        result.set("Tables", allTables);
         std::ostream& answer = response.send();
-        tables.stringify(answer);
+        result.stringify(answer);
     }
     response.send();
 }
@@ -95,14 +127,38 @@ void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Rename database\" from %s",
                              request.clientAddress().toString());
 
-    response.setChunkedTransferEncoding(true);
-    response.setContentType("text/html");
+    auto databasePreviousName = request.find("databasePreviousName");
+    auto databaseNewName = request.find("databaseNewName");
 
-    auto databaseName = request.find("databaseName");
-    if (databaseName == request.end()) {
+    bool success = false;
+
+    if (databasePreviousName == request.end() || databaseNewName == request.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
+        success = true;
         response.setStatus(HTTPResponse::HTTP_OK);
+        PostgreSQL::Connector::registerConnector();
+        Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
+                                    "host=localhost port=5432 user=alex_braun "
+                                    "password=AlAzazaAl123 dbname=postgres");
+
+        session << "ALTER DATABASE " + databasePreviousName->second + " RENAME TO " +
+        databaseNewName->second;
+
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("application/json");
+        response.setKeepAlive(true);
+        response.set("access-control-allow-origin", "*");
+        response.setStatus(HTTPResponse::HTTP_OK);
+
+        Poco::JSON::Object result;
+        result.set("HTTP method", "POST");
+        result.set("API method", "Rename database");
+        result.set("Success", success);
+        result.set("Previous database name", databasePreviousName->second);
+        result.set("New database name", databaseNewName->second);
+        std::ostream& answer = response.send();
+        result.stringify(answer);
     }
     response.send();
 }
@@ -113,14 +169,35 @@ void DatabaseDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Delete database\" from %s",
                              request.clientAddress().toString());
 
-    response.setChunkedTransferEncoding(true);
-    response.setContentType("text/html");
+    PostgreSQL::Connector::registerConnector();
+    Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
+                                "host=localhost port=5432 user=alex_braun "
+                                "password=AlAzazaAl123 dbname=postgres");
 
     auto databaseName = request.find("databaseName");
+
+    bool success = false;
+
     if (databaseName == request.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
+        success = true;
+        response.setStatus(HTTPResponse::HTTP_OK);
+        session << "DROP DATABASE IF EXISTS " + databaseName->second;
+
+        response.setChunkedTransferEncoding(true);
+        response.setContentType("application/json");
+        response.setKeepAlive(true);
+        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
+
+    Poco::JSON::Object result;
+    result.set("HTTP method", "POST");
+    result.set("API method", "Delete database");
+    result.set("Success", success);
+    std::ostream& answer = response.send();
+    result.stringify(answer);
+
     response.send();
 }

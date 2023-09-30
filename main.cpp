@@ -2,6 +2,7 @@
 #include "handlers/table/tableRequestHandlers.h"
 #include "handlers/row/rowRequestHandlers.h"
 #include "handlers/attribute/attributeRequestHandlers.h"
+#include "handlers/error/errorRequestHandler.h"
 
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Net/HTTPRequestHandler.h"
@@ -29,26 +30,28 @@ class RequestHandlerFactory: public HTTPRequestHandlerFactory
             return new DatabaseRenameRequestHandler();
         } else if (uri == "/database/delete") {
             return new DatabaseDeleteRequestHandler();
-        } else if (uri == "/table/create") {
+        } else if (uri == "/database/table/create") {
             return new TableCreateRequestHandler();
-        } else if (uri == "/table/show") {
+        } else if (uri == "/database/table/show") {
             return new TableShowRequestHandler();
-        } else if (uri == "/table/rename") {
+        } else if (uri == "/database/table/rename") {
             return new TableRenameRequestHandler();
-        } else if (uri == "/table/delete") {
+        } else if (uri == "/database/table/delete") {
             return new TableDeleteRequestHandler();
-        } else if (uri == "/row/add") {
+        } else if (uri == "/database/table/row/add") {
             return new RowAddRequestHandler();
-        } else if (uri == "/row/edit") {
+        } else if (uri == "/database/table/row/edit") {
             return new RowEditRequestHandler();
-        } else if (uri == "/row/delete") {
+        } else if (uri == "/database/table/row/delete") {
             return new RowDeleteRequestHandler();
-        } else if (uri == "/attribute/add") {
+        } else if (uri == "/database/table/attribute/add") {
             return new AttributeAddRequestHandler();
-        } else if (uri == "/attribute/edit") {
+        } else if (uri == "/database/table/attribute/edit") {
             return new AttributeEditRequestHandler();
-        } else if (uri == "/attribute/delete") {
+        } else if (uri == "/database/table/attribute/delete") {
             return new AttributeDeleteRequestHandler();
+        } else {
+            return new NotFoundRequestHandler();
         }
     }
 };

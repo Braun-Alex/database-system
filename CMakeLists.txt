@@ -6,11 +6,13 @@ set(HEADERS handlers/database/databaseRequestHandlers.h
         handlers/table/tableRequestHandlers.h
         handlers/row/rowRequestHandlers.h
         handlers/attribute/attributeRequestHandlers.h
+        handlers/error/errorRequestHandler.h
 )
 set(SOURCES handlers/database/databaseRequestHandlers.cpp
         handlers/table/tableRequestHandlers.cpp
         handlers/row/rowRequestHandlers.cpp
         handlers/attribute/attributeRequestHandlers.cpp
+        handlers/error/errorRequestHandler.cpp
         main.cpp)
 
 include(FetchContent)
