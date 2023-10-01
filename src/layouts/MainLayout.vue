@@ -12,6 +12,7 @@
         <div class="q-gutter-sm row items-center no-wrap">
           <q-btn glossy style="background: #350080; color: white"
                  flat label="Перевірити, чи працює API сервер"
+                 icon="cell_tower" icon-right="cell_tower"
                  @click="checkAPI()" no-caps>
           </q-btn>
         </div>
