@@ -10,6 +10,7 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Util/ServerApplication.h"
+#include "Poco/RegularExpression.h"
 
 using namespace Poco;
 using namespace Poco::Net;
@@ -19,12 +20,14 @@ class RequestHandlerFactory: public HTTPRequestHandlerFactory
 {
     HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) override
     {
+        RegularExpression showTablesRegex(R"(^\/database\/show\/[A-Za-z_]+$)"),
+        showTableRegex(R"(^\/database\/[a-zA-Z_]+\/table\/show\/[a-zA-Z_]+$)");
         const auto& uri = request.getURI();
         if (uri == "/show") {
             return new DatabasesShowRequestHandler();
         } else if (uri == "/database/create") {
             return new DatabaseCreateRequestHandler();
-        } else if (uri == "/database/show") {
+        } else if (showTablesRegex.match(uri)) {
             return new DatabaseShowRequestHandler();
         } else if (uri == "/database/rename") {
             return new DatabaseRenameRequestHandler();
@@ -32,7 +35,7 @@ class RequestHandlerFactory: public HTTPRequestHandlerFactory
             return new DatabaseDeleteRequestHandler();
         } else if (uri == "/database/table/create") {
             return new TableCreateRequestHandler();
-        } else if (uri == "/database/table/show") {
+        } else if (showTableRegex.match(uri)) {
             return new TableShowRequestHandler();
         } else if (uri == "/database/table/rename") {
             return new TableRenameRequestHandler();

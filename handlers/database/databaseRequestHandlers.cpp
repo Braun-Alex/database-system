@@ -71,37 +71,32 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Show database\" from %s",
                              request.clientAddress().toString());
 
-    auto databaseName = request.find("databaseName");
+    std::string databaseName = request.getURI().substr(15);
 
-    if (databaseName == request.end()) {
-        response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
-    } else {
-        response.setStatus(HTTPResponse::HTTP_OK);
-        PostgreSQL::Connector::registerConnector();
-        Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
-                                    "host=localhost port=5432 user=alex_braun "
-                                    "password=AlAzazaAl123 dbname=" + databaseName->second);
+    response.setStatus(HTTPResponse::HTTP_OK);
+    PostgreSQL::Connector::registerConnector();
+    Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
+                                "host=localhost port=5432 user=alex_braun "
+                                "password=AlAzazaAl123 dbname=" + databaseName);
 
-        std::vector<std::string> allTables;
-        session << "SELECT tablename\n"
-                   "FROM pg_catalog.pg_tables\n"
-                   "WHERE schemaname != 'information_schema'\n"
-                   "AND schemaname != 'pg_catalog'", into(allTables), now;
+    std::vector<std::string> allTables;
+    session << "SELECT tablename\n"
+               "FROM pg_catalog.pg_tables\n"
+               "WHERE schemaname != 'information_schema'\n"
+               "AND schemaname != 'pg_catalog'", into(allTables), now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
-        response.setStatus(HTTPResponse::HTTP_OK);
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+    response.setStatus(HTTPResponse::HTTP_OK);
 
-        Poco::JSON::Object result;
-        result.set("Database", databaseName->second);
-        result.set("Tables", allTables);
-        std::ostream& answer = response.send();
-        result.stringify(answer);
-    }
+    Poco::JSON::Object result;
+    result.set("Database", databaseName);
+    result.set("Tables", allTables);
 
-    response.send();
+    std::ostream& answer = response.send();
+    result.stringify(answer);
 }
 
 void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
