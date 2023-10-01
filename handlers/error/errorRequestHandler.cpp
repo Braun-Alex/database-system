@@ -3,7 +3,7 @@
 void NotFoundRequestHandler::handleRequest(HTTPServerRequest& request,
                                            HTTPServerResponse& response) {
     Application& app = Application::instance();
-    app.logger().information("Request \"Delete attribute\" from %s",
+    app.logger().information("Error request from %s",
                              request.clientAddress().toString());
 
     response.setChunkedTransferEncoding(true);
@@ -17,6 +17,4 @@ void NotFoundRequestHandler::handleRequest(HTTPServerRequest& request,
     attributes.set("Result of request", "Not found");
     std::ostream& answer = response.send();
     attributes.stringify(answer);
-
-    response.send();
 }

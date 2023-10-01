@@ -52,7 +52,6 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
     if (databaseName == form.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
-        response.setStatus(HTTPResponse::HTTP_OK);
         session << "CREATE DATABASE " + databaseName->second, now;
 
         response.setChunkedTransferEncoding(true);
@@ -73,7 +72,6 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
 
     std::string databaseName = request.getURI().substr(15);
 
-    response.setStatus(HTTPResponse::HTTP_OK);
     PostgreSQL::Connector::registerConnector();
     Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                 "host=localhost port=5432 user=alex_braun "
@@ -106,13 +104,12 @@ void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
                              request.clientAddress().toString());
 
     HTMLForm form(request, request.stream());
-    auto databasePreviousName = form.find("databasePreviousName");
-    auto databaseNewName = form.find("databaseNewName");
+    auto databasePreviousName = form.find("databasePreviousName"),
+    databaseNewName = form.find("databaseNewName");
 
     if (databasePreviousName == form.end() || databaseNewName == form.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
-        response.setStatus(HTTPResponse::HTTP_OK);
         PostgreSQL::Connector::registerConnector();
         Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                     "host=localhost port=5432 user=alex_braun "
