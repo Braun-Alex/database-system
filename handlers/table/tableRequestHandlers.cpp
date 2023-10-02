@@ -14,6 +14,11 @@ void TableCreateRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Create table\" from %s",
                                  request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     HTMLForm form(request, request.stream());
     auto databaseName = form.find("databaseName");
 
@@ -38,16 +43,24 @@ void TableCreateRequestHandler::handleRequest(HTTPServerRequest& request,
         auto iterator = columnPairs.begin(),
         previousIterator = iterator;
         while (iterator != columnPairs.end()) {
-            iterator = std::find(columnPairs.begin(), columnPairs.end(), '|');
-            auto column = std::string(*previousIterator, *iterator);
+            previousIterator = iterator;
+            iterator = std::find(iterator, columnPairs.end(), '|');
+            auto column = std::string(previousIterator, iterator);
+
+            if (iterator != columnPairs.end()) {
+                ++iterator;
+            }
+
             if (!attributesRegex.match(column)) {
                 response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
                 response.send();
                 return;
             }
+
             auto columnName = form.find(std::string(
                     column.begin(),
                     std::find(column.begin(), column.end(), ':')));
+
             tableColumns.emplace_back(
                 columnName->first,
                 columnName->second
@@ -79,13 +92,9 @@ void TableCreateRequestHandler::handleRequest(HTTPServerRequest& request,
                                     "host=localhost port=5432 user=alex_braun "
                                     "password=AlAzazaAl123 dbname=" + databaseName->second);
 
-        response.setStatus(HTTPResponse::HTTP_OK);
         session << query, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
+        response.setStatus(HTTPResponse::HTTP_OK);
     }
 
     response.send();
@@ -96,6 +105,11 @@ void TableShowRequestHandler::handleRequest(HTTPServerRequest& request,
     Application& app = Application::instance();
     app.logger().information("Request \"Show table\" from %s",
                                  request.clientAddress().toString());
+
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
 
     const std::string& uri = request.getURI();
     auto iterator = uri.begin() + 10;
@@ -113,6 +127,7 @@ void TableShowRequestHandler::handleRequest(HTTPServerRequest& request,
     }
 
     response.setStatus(HTTPResponse::HTTP_OK);
+
     PostgreSQL::Connector::registerConnector();
     Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                 "host=localhost port=5432 user=alex_braun "
@@ -156,6 +171,11 @@ void TableRenameRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Rename table\" from %s",
                                  request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     HTMLForm form(request, request.stream());
     auto databaseName = form.find("databaseName"),
     tablePreviousName = form.find("tablePreviousName"),
@@ -170,13 +190,9 @@ void TableRenameRequestHandler::handleRequest(HTTPServerRequest& request,
                                     "host=localhost port=5432 user=alex_braun "
                                     "password=AlAzazaAl123 dbname=" + databaseName->second);
 
-        session << "ALTER DATABASE " + tablePreviousName->second + " RENAME TO " +
+        session << "ALTER TABLE " + tablePreviousName->second + " RENAME TO " +
                    tableNewName->second, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
 
@@ -188,6 +204,11 @@ void TableDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
     Application& app = Application::instance();
     app.logger().information("Request \"Delete table\" from %s",
                                  request.clientAddress().toString());
+
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
 
     HTMLForm form(request, request.stream());
     auto databaseName = form.find("databaseName"),
@@ -203,10 +224,6 @@ void TableDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
 
         session << "DROP TABLE IF EXISTS " + tableName->second, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
 

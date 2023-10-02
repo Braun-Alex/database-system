@@ -14,6 +14,11 @@ void DatabasesShowRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Show databases\" from %s",
                              request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     PostgreSQL::Connector::registerConnector();
     Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                 "host=localhost port=5432 user=alex_braun "
@@ -22,10 +27,6 @@ void DatabasesShowRequestHandler::handleRequest(HTTPServerRequest& request,
     std::vector<std::string> allDatabases;
     session << "SELECT datname FROM pg_database", into(allDatabases), now;
 
-    response.setChunkedTransferEncoding(true);
-    response.setContentType("application/json");
-    response.setKeepAlive(true);
-    response.set("access-control-allow-origin", "*");
     response.setStatus(HTTPResponse::HTTP_OK);
 
     Poco::JSON::Object result;
@@ -41,6 +42,11 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Create database\" from %s",
                                  request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     PostgreSQL::Connector::registerConnector();
     Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                 "host=localhost port=5432 user=alex_braun "
@@ -54,10 +60,6 @@ void DatabaseCreateRequestHandler::handleRequest(HTTPServerRequest& request,
     } else {
         session << "CREATE DATABASE " + databaseName->second, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
 
@@ -69,6 +71,11 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
     Application& app = Application::instance();
     app.logger().information("Request \"Show database\" from %s",
                              request.clientAddress().toString());
+
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
 
     std::string databaseName = request.getURI().substr(15);
 
@@ -83,10 +90,6 @@ void DatabaseShowRequestHandler::handleRequest(HTTPServerRequest& request,
                "WHERE schemaname != 'information_schema'\n"
                "AND schemaname != 'pg_catalog'", into(allTables), now;
 
-    response.setChunkedTransferEncoding(true);
-    response.setContentType("application/json");
-    response.setKeepAlive(true);
-    response.set("access-control-allow-origin", "*");
     response.setStatus(HTTPResponse::HTTP_OK);
 
     Poco::JSON::Object result;
@@ -103,6 +106,11 @@ void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Rename database\" from %s",
                              request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     HTMLForm form(request, request.stream());
     auto databasePreviousName = form.find("databasePreviousName"),
     databaseNewName = form.find("databaseNewName");
@@ -118,10 +126,6 @@ void DatabaseRenameRequestHandler::handleRequest(HTTPServerRequest& request,
         session << "ALTER DATABASE " + databasePreviousName->second + " RENAME TO " +
         databaseNewName->second, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
 
@@ -134,6 +138,11 @@ void DatabaseDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
     app.logger().information("Request \"Delete database\" from %s",
                              request.clientAddress().toString());
 
+    response.setChunkedTransferEncoding(true);
+    response.setContentType("application/json");
+    response.setKeepAlive(true);
+    response.set("access-control-allow-origin", "*");
+
     PostgreSQL::Connector::registerConnector();
     Poco::Data::Session session(Poco::Data::PostgreSQL::Connector::KEY,
                                 "host=localhost port=5432 user=alex_braun "
@@ -145,13 +154,8 @@ void DatabaseDeleteRequestHandler::handleRequest(HTTPServerRequest& request,
     if (databaseName == form.end()) {
         response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
     } else {
-        response.setStatus(HTTPResponse::HTTP_OK);
         session << "DROP DATABASE IF EXISTS " + databaseName->second, now;
 
-        response.setChunkedTransferEncoding(true);
-        response.setContentType("application/json");
-        response.setKeepAlive(true);
-        response.set("access-control-allow-origin", "*");
         response.setStatus(HTTPResponse::HTTP_OK);
     }
 
