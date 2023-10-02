@@ -125,7 +125,7 @@
 
           <q-card-actions align="right" class="text-primary">
             <q-btn flat label="Відмінити" v-close-popup no-caps />
-            <q-btn flat label="Створити таблицю" type="submit" :v-close-popup="tableName.length > 0 && (columns as string).length" no-caps @click="createTable()" />
+            <q-btn flat label="Створити таблицю" type="submit" no-caps />
           </q-card-actions>
           </q-form>
         </q-card>
@@ -332,7 +332,7 @@ function deleteDatabase (databaseName: string) {
   if (!allDatabases.value.includes(databaseName)) {
     $q.notify({
       type: 'negative',
-      message: 'Такої бази даних вже не існує. Відмова у видаленні'
+      message: 'Такої бази даних не існує. Відмова у видаленні'
     })
   } else {
     const formData = new FormData()
@@ -342,11 +342,116 @@ function deleteDatabase (databaseName: string) {
         type: 'positive',
         message: 'Базу даних було успішно видалено'
       })
-      showDatabases()
+      axios.get('http://localhost:8080/show').then((response: any) => {
+        allDatabases.value = []
+        response.data.Databases.forEach((database: string) => {
+          if (database !== 'template0' && database !== 'template1' && database !== 'postgres') {
+            allDatabases.value.push(database)
+          }
+        })
+      })
     }).catch((error) => {
       $q.notify({
         type: 'negative',
         message: 'Помилка при видаленні бази даних. Причина: ' + error.message
+      })
+    })
+  }
+}
+
+function createTable () {
+  newTablePrompt.value = false
+  axios.get(`http://localhost:8080/database/show/${currentDatabase.value}`).then((response: any) => {
+    allTables.value = response.data.Tables
+  })
+  if (allTables.value.includes(tableName.value)) {
+    $q.notify({
+      type: 'negative',
+      message: 'Така таблиця вже існує. Відмова у створенні'
+    })
+  } else {
+    const formData = new FormData()
+    formData.append('databaseName', currentDatabase.value)
+    formData.append('tableName', tableName.value)
+    formData.append('columns', (columns.value as unknown as string[]).join('|'))
+    const pairs = columns.value as unknown as string[]
+    pairs.forEach((column: string) => {
+      const pair = column.split(": ")
+      formData.append(pair[0], pair[1])
+    })
+    axios.post('http://localhost:8080/database/table/create', formData).then(() => {
+      $q.notify({
+        type: 'positive',
+        message: 'Таблицю було успішно створено'
+      })
+      allTables.value.push(tableName.value)
+    }).catch((error) => {
+      $q.notify({
+        type: 'negative',
+        message: 'Помилка при створенні таблиці. Причина: "' + error.message + '"'
+      })
+    })
+  }
+}
+
+function renameTable (tablePreviousName: string) {
+  axios.get(`http://localhost:8080/database/show/${currentDatabase.value}`).then((response: any) => {
+    allTables.value = response.data.Tables
+  })
+  if (allTables.value.includes(tableName.value)) {
+    $q.notify({
+      type: 'negative',
+      message: 'Така таблиця вже існує. Відмова у перейменуванні'
+    })
+  } else {
+    const formData = new FormData()
+    formData.append('databaseName', currentDatabase.value)
+    formData.append('tablePreviousName', tablePreviousName)
+    formData.append('tableNewName', tableName.value)
+    axios.post('http://localhost:8080/database/table/rename', formData).then(() => {
+      $q.notify({
+        type: 'positive',
+        message: 'Таблицю було успішно перейменовано'
+      })
+      axios.get(`http://localhost:8080/database/show/${currentDatabase.value}`).then((response: any) => {
+        allTables.value = response.data.Tables
+      })
+    }).catch((error) => {
+      $q.notify({
+        type: 'negative',
+        message: 'Помилка при перейменуванні таблиці. Причина: "' + error.message + '"'
+      })
+    }).finally(() => {
+      tableName.value = ''
+    })
+  }
+}
+
+function deleteTable (tableName: string) {
+  axios.get(`http://localhost:8080/database/show/${currentDatabase.value}`).then((response: any) => {
+    allTables.value = response.data.Tables
+  })
+  if (!allTables.value.includes(tableName)) {
+    $q.notify({
+      type: 'negative',
+      message: 'Такої таблиці не існує. Відмова у видлаенні'
+    })
+  } else {
+    const formData = new FormData()
+    formData.append('databaseName', currentDatabase.value)
+    formData.append('tableName', tableName)
+    axios.post('http://localhost:8080/database/table/delete', formData).then(() => {
+      $q.notify({
+        type: 'positive',
+        message: 'Таблицю було успішно видалено'
+      })
+      axios.get(`http://localhost:8080/database/show/${currentDatabase.value}`).then((response: any) => {
+        allTables.value = response.data.Tables
+      })
+    }).catch((error) => {
+      $q.notify({
+        type: 'negative',
+        message: 'Помилка при видаленні бази даних. Причина: "' + error.message + '"'
       })
     })
   }
