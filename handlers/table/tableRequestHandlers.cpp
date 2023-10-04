@@ -149,12 +149,12 @@ void TableShowRequestHandler::handleRequest(HTTPServerRequest& request,
 
     result.set("Columns", columnNames);
 
-    std::vector<std::vector<Dynamic::Var>> rows;
+    std::vector<Poco::JSON::Object> rows;
 
     for (RecordSet::Iterator row = rs.begin(); row != rs.end(); ++row) {
-        std::vector<Dynamic::Var> rowData;
+        Poco::JSON::Object rowData;
         for (size_t i = 0; i < columns; ++i) {
-            rowData.push_back(row->get(i));
+            rowData.set(rs.columnName(i), row->get(i));
         }
         rows.push_back(rowData);
     }
