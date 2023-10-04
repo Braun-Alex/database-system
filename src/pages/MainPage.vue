@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md" v-show="!tableView">
+  <div class="q-pa-md" v-show="!tableView && !rowsView">
       <div class="q-pa-md q-gutter-md">
         <q-btn :loading="!retrievingFinished" square color="blue" icon="refresh" icon-right="refresh" glossy
                @click="showDatabases()" no-caps>
@@ -86,7 +86,7 @@
         />
       </div>
   </div>
-  <div class="q-pa-md" v-show="tableView">
+  <div class="q-pa-md" v-show="tableView && !rowsView">
     <div class="q-pa-md q-gutter-md">
       <q-btn label="Створити нову таблицю" square color="green" icon="add_circle" icon-right="add_circle" glossy
              @click="newTablePrompt = true" no-caps />
@@ -190,6 +190,51 @@
       />
     </div>
   </div>
+  <div class="q-pa-md" v-show="rowsView">
+    <q-toggle color="blue" icon="check" v-model="editorMode" @click="allColumns.reverse()"
+              :label="editorMode? 'Режим редагування таблиці увімкнено': 'Режим редагування таблиці вимкнено'" />
+    <q-table
+      flat bordered
+      :title="format.capitalize(currentTable)"
+      :rows="allRows"
+      :columns="allColumns"
+      row-key="name"
+      :selection="editorMode? 'none': 'multiple'"
+      v-model:selected="selected"
+    >
+
+      <template v-slot:header-selection="scope">
+        <q-toggle color="red" icon="cancel" v-model="scope.selected" />
+      </template>
+
+      <template v-slot:body-selection="scope">
+        <q-toggle color="red" icon="cancel" v-model="scope.selected" />
+      </template>
+
+      <template v-if="editorMode" v-slot:body="props">
+        <q-tr :props="props">
+          <q-td v-for="(value, index) in props.row" :key="index" :props="props">
+            {{ value }}
+            <q-popup-edit v-model="props.row[index]" v-slot="scope">
+              <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set" />
+            </q-popup-edit>
+          </q-td>
+        </q-tr>
+      </template>
+
+        <template v-slot:top>
+            <q-btn color="green" :disable="editorMode" label="Додати рядок" glossy icon="add_circle" icon-right="add_circle" @click="addRow()" rounded no-caps />
+            <q-btn v-if="allRows.length !== 0" class="q-ml-sm" color="red" :disable="editorMode || selected.length <= 0" label="Видалити рядок" icon="cancel"
+                   icon-right="cancel" glossy @click="removeRow()" rounded no-caps />
+            <q-btn class="q-ml-sm" color="amber" :disable="editorMode && !tableChanged" label="Зберегти зміни" icon="save"
+                   icon-right="save" glossy rounded no-caps />
+            <q-btn class="q-ml-sm" label="Повернутися" rounded style="background: #1FA39A; color: white" icon="keyboard_backspace"
+                   icon-right="keyboard_backspace" glossy @click="tableView = true; rowsView = false" no-caps />
+            <q-space />
+        </template>
+
+    </q-table>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -200,20 +245,30 @@ const newTablePrompt: Ref<boolean> = ref<boolean>(false)
 const renamingDatabasePrompt: Ref<boolean> = ref<boolean>(false)
 const renamingTablePrompt: Ref<boolean> = ref<boolean>(false)
 const tableView: Ref<boolean> = ref<boolean>(false)
+const rowsView: Ref<boolean> = ref<boolean>(false)
+const editorMode: Ref<boolean> = ref<boolean>(false)
+const tableChanged: Ref<boolean> = ref<boolean>(false)
 const databaseName: Ref<string> = ref<string>('')
 const tableName: Ref<string> = ref<string>('')
 const allDatabases: Ref<string[]> = ref<string[]>([])
 const allTables: Ref<string[]> = ref<string[]>([])
 const currentDatabase: Ref<string> = ref<string>('')
-const columns: Ref<null> = ref(null)
-import axios from 'axios'
-import { useQuasar } from 'quasar'
-const $q = useQuasar()
+const currentTable: Ref<string> = ref<string>('')
+const columns: Ref<null> = ref<null>(null)
+const selected: Ref<any[]> = ref<any[]>([])
 
 interface Column {
-  type: string,
-  name: string
+  name: string,
+  label: string,
+  field: string,
+  align?: 'left' | 'right' | 'center'
 }
+
+const allColumns: Ref<Column[]> = ref<Column[]>([])
+const allRows: Ref<any[]> = ref<any[]>([])
+import axios from 'axios'
+import { useQuasar, format } from 'quasar'
+const $q = useQuasar()
 
 function createColumn (val: string, done: any) {
   done(val.toLowerCase(), 'add-unique')
@@ -231,7 +286,7 @@ function showDatabases () {
   }).catch((error) => {
     $q.notify({
       type: 'negative',
-      message: 'API сервер не працює. Причина: ' + error.message
+      message: 'API сервер не працює. Причина: "' + error.message + '"'
     })
   }).finally(() => {
     retrievingFinished.value = true
@@ -264,7 +319,7 @@ function createDatabase () {
     }).catch((error) => {
       $q.notify({
         type: 'negative',
-        message: 'Помилка при створенні бази даних. Причина: ' + error.message
+        message: 'Помилка при створенні бази даних. Причина: "' + error.message + '"'
       })
     }).finally(() => {
       databaseName.value = ''
@@ -280,7 +335,7 @@ function showTables (databaseName: string) {
   }).catch((error) => {
     $q.notify({
       type: 'negative',
-      message: 'API сервер не працює. Причина: ' + error.message
+      message: 'API сервер не працює. Причина: "' + error.message + '"'
     })
   })
 }
@@ -312,7 +367,7 @@ function renameDatabase (databasePreviousName: string) {
     }).catch((error) => {
       $q.notify({
         type: 'negative',
-        message: 'Помилка при перейменуванні бази даних. Причина: ' + error.message
+        message: 'Помилка при перейменуванні бази даних. Причина: "' + error.message + '"'
       })
     }).finally(() => {
       databaseName.value = ''
@@ -353,7 +408,7 @@ function deleteDatabase (databaseName: string) {
     }).catch((error) => {
       $q.notify({
         type: 'negative',
-        message: 'Помилка при видаленні бази даних. Причина: ' + error.message
+        message: 'Помилка при видаленні бази даних. Причина: "' + error.message + '"'
       })
     })
   }
@@ -455,5 +510,43 @@ function deleteTable (tableName: string) {
       })
     })
   }
+}
+
+function showRows (tableName: string) {
+  tableView.value = false
+  rowsView.value = true
+  currentTable.value = tableName
+  axios.get(`http://localhost:8080/database/${currentDatabase.value}/table/show/${tableName}`).then((response: any) => {
+    allColumns.value = []
+    response.data.Columns.forEach((column: string) => {
+      allColumns.value.push({
+        name: column,
+        label: format.capitalize(column),
+        field: column,
+        align: 'left'
+      })
+    })
+    allRows.value = Object.values(response.data.Rows)
+  }).catch((error) => {
+    $q.notify({
+      type: 'negative',
+      message: 'API сервер не працює. Причина: "' + error.message + '"'
+    })
+  })
+}
+
+function removeRow () {
+  allRows.value = allRows.value.filter((row) => {
+    return !selected.value.includes(row as never)
+  })
+  tableChanged.value = true
+}
+
+function addRow () {
+  const row: any = {}
+  allColumns.value.forEach((column: Column) => {
+    row[column.name] = 'Зміни мене'
+  })
+  allRows.value.push(row)
 }
 </script>
