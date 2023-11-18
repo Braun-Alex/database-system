@@ -109,9 +109,9 @@ class RemoteDBManager(DBManager):
         print("Таблиці", db.tables)
         for table in db.tables.values():
             daemon.register(table, force=True)
-            for col in table.columns_obj:
+            for col in table.columns:
                 daemon.register(col, force=True)
-            for row in table.rows_obj:
+            for row in table.rows:
                 daemon.register(row, force=True)
         print(f"Базу даних завантажено за шляхом {path_to_load}")
 

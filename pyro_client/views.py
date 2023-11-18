@@ -143,9 +143,9 @@ def save_db_view():
 
 def open_db_view():
     return sg.Window(
-        "Відкрити базу даних",
+        "Завантажити базу даних",
         [
             [sg.T("Введіть шлях"), sg.In(key="-DB-OPEN-PATH-")],
-            [sg.B("Відкрити"), sg.B("Відмінити")],
+            [sg.B("Завантажити"), sg.B("Відмінити")],
         ],
     ).read(close=True)
