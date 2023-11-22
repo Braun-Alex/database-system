@@ -1,0 +1,32 @@
+type Query {
+  joinTables(first_table_name: String!, second_table_name: String!, field_name: String!): Table
+}
+
+type Mutation {
+  createDatabase(name: String!): Response
+  addTable(name: String!): Response
+  addColumn(table_name: String!, column_name: String!, column_type: String!): Response
+  addRow(table_name: String!, data: JSON!): Response
+}
+
+type Table {
+  name: String
+  columns: [Column]
+  rows: [Row]
+}
+
+type Column {
+  name: String
+  column_type: String
+}
+
+type Row {
+  values: [String]
+}
+
+scalar JSON
+
+type Response {
+  success: Boolean
+  message: String
+}

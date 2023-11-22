@@ -13,8 +13,7 @@ from ui.views import (
     change_row_detailed_view,
     save_db_view,
     open_db_view,
-    date_interval_column_view,
-    join_tables_view,
+    join_tables_view
 )
 
 sg.theme("SandyBeach")
@@ -79,6 +78,7 @@ while True:
         print(event, values)
         if event == sg.WIN_CLOSED:
             break
+
         if event == "Створити базу даних":
             event, values = create_db_view()
             if event == "Створити":
@@ -101,6 +101,7 @@ while True:
                 column_choices=column.COLUMN_TYPE_CHOICES,
                 table_name=LOCAL_DATA["selected_table"],
             )
+
             if event == "Додати":
                 column_type = values["-COLUMN-TYPE-"]
                 one_input_columns = {
@@ -121,6 +122,7 @@ while True:
             event, values = add_row_view(
                 table.columns[1:],
             )
+
             if event == "Вставити":
                 for column_name in list(values):
                     correct_column_name = column_name.split(":")[0]

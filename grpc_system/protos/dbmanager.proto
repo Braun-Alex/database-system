@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package dbmanager;
+
+service DatabaseManager {
+  rpc CreateDatabase(CreateDatabaseRequest) returns (DatabaseResponse);
+  rpc SaveDatabase(SaveDatabaseRequest) returns (SaveDatabaseResponse);
+  rpc OpenDatabase(OpenDatabaseRequest) returns (DatabaseResponse);
+
+  rpc AddTable(AddTableRequest) returns (TableResponse);
+  rpc GetTable(GetTableRequest) returns (TableResponse);
+  rpc DeleteTable(DeleteTableRequest) returns (TableResponse);
+
+  rpc AddColumn(AddColumnRequest) returns (ColumnResponse);
+
+  rpc AddRow(AddRowRequest) returns (RowResponse);
+  rpc ChangeRow(ChangeRowRequest) returns (RowResponse);
+  rpc DeleteRow(DeleteRowRequest) returns (RowResponse);
+
+  rpc JoinTables(JoinTablesRequest) returns (TableResponse);
+}
+
+message CreateDatabaseRequest {
+  string name = 1;
+}
+
+message DatabaseResponse {
+  string name = 1;
+  repeated Table tables = 2;
+}
+
+message SaveDatabaseRequest {
+  string path_to_save = 1;
+}
+
+message SaveDatabaseResponse {
+  string path = 1;
+}
+
+message OpenDatabaseRequest {
+  string path_to_load = 1;
+}
+
+message AddTableRequest {
+  string table_name = 1;
+}
+
+message GetTableRequest {
+  string name = 1;
+}
+
+message DeleteTableRequest {
+  string name = 1;
+}
+
+message TableResponse {
+  string name = 1;
+  repeated Column columns = 2;
+  repeated Row rows = 3;
+}
+
+message AddColumnRequest {
+  string table_name = 1;
+  Column column = 2;
+}
+
+message ColumnResponse {
+  Column column = 1;
+}
+
+message AddRowRequest {
+  string table_name = 1;
+  Row row = 2;
+}
+
+message ChangeRowRequest {
+  string table_name = 1;
+  int32 index = 2;
+  Row row = 3;
+}
+
+message DeleteRowRequest {
+  string table_name = 1;
+  int32 index = 2;
+}
+
+message RowResponse {
+  Row row = 1;
+}
+
+message JoinTablesRequest {
+  string first_table_name = 1;
+  string second_table_name = 2;
+  string field_name = 3;
+}
+
+message Table {
+  string name = 1;
+  repeated Column columns = 2;
+  repeated Row rows = 3;
+}
+
+message Column {
+  string name = 1;
+  string type = 2;
+  string default_value = 3;
+}
+
+message Row {
+  repeated string values = 1;
+}

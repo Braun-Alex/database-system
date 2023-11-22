@@ -1,0 +1,98 @@
+mutation {
+  createDatabase(name: "food") {
+    success
+    message
+  }
+}
+
+mutation {
+  addTable(name: "vegetables") {
+    success
+    message
+  }
+}
+
+mutation {
+  addTable(name: "fruits") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "vegetables", column_name: "owner", column_type: "String") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "fruits", column_name: "owner", column_type: "String") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "vegetables", column_name: "vg_name", column_type: "String") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "fruits", column_name: "fr_name", column_type: "String") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "vegetables", column_name: "vg_count", column_type: "Int") {
+    success
+    message
+  }
+}
+
+mutation {
+  addColumn(table_name: "fruits", column_name: "fr_count", column_type: "Int") {
+    success
+    message
+  }
+}
+
+mutation {
+  addRow(table_name: "vegetables", data: {
+  owner: "Alex",
+  vg_name: "Carrot",
+  vg_count: 3
+  }) {
+    success
+    message
+  }
+}
+
+mutation {
+  addRow(table_name: "fruits", data: {
+  owner: "Alex",
+  fr_name: "Orange",
+  fr_count: 29
+  }) {
+    success
+    message
+  }
+}
+
+query {
+  joinTables(first_table_name: "vegetables", second_table_name: "fruits", field_name: "owner") {
+    name
+    columns {
+      name
+      column_type
+    }
+    rows {
+      values
+    }
+  }
+}
+
